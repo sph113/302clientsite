@@ -20,6 +20,9 @@ const LNAME_MSG = $( "#lname-msg" );
 const EMAIL = $( "#email" );
 const EMAIL_MSG = $( "#email-msg" );
 
+const ADDRESS = $( "#address" );
+const ADDRESS_MSG = $( "#address-msg" );
+
 /**
  * Resets the error message fields and makes the submit
  * button visible.
@@ -38,6 +41,8 @@ function reset_form ( )
     FNAME_MSG.hide();
     EMAIL_MSG.html( "" );
     EMAIL_MSG.hide();
+    ADDRESS_MSG.html( "" );
+    ADDRESS_MSG.hide();
     SUBMIT.show();
 }
 
@@ -110,6 +115,13 @@ function validate ( )
         valid = false;
     }
 
+    if ( !ADDRESS.val() )
+    {
+        ADDRESS_MSG.html("Address must not be empty");
+        ADDRESS_MSG.show();
+        valid = false;
+    }
+
     // If the form is valid, reset error messages
     if ( valid )
     {
@@ -125,5 +137,6 @@ CONFIRM.change ( validate );
 LNAME.change ( validate );
 FNAME.change ( validate );
 EMAIL.change ( validate );
+ADDRESS.change ( validate );
 
 

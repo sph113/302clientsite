@@ -207,14 +207,15 @@ def registration():
     fname = request.form["fname"]
     lname = request.form["lname"]
     email = request.form["email"]
+    address = request.form["address"]
     # See if username already in the database
     rows = db.execute( "SELECT * FROM users WHERE username = :username ", username = username )
     # If username already exists, alert user
     if len( rows ) > 0:
         return render_template ( "new.html", msg="Username already exists!" )
     # If new user, upload his/her info into the users database
-    new = db.execute ( "INSERT INTO users (username, password, fname, lname, email) VALUES (:username, :password, :fname, :lname, :email)",
-                    username=username, password=password, fname=fname, lname=lname, email=email )
+    new = db.execute ( "INSERT INTO users (username, password, fname, lname, email, address) VALUES (:username, :password, :fname, :lname, :email, :address)",
+                    username=username, password=password, fname=fname, lname=lname, email=email , address=address)
     # Render login template
     return render_template ( "login.html" )
 

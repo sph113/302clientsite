@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-Soccer Jersey Store - Home
+UNIQLO - Cart
 {% endblock %}
 
 {% block body %}
@@ -10,9 +10,10 @@ Soccer Jersey Store - Home
     <div>
       <div>
         <div>
-          <h5 class="modal-title" id="exampleModalLongTitle">Shopping Cart</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          </button>
+            <br>
+            <h5 class="modal-title" id="exampleModalLongTitle" style="padding-left:15px">Shopping Cart</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            </button>
         </div>
         <div>
           <div id="shoppingCart">
@@ -22,9 +23,9 @@ Soccer Jersey Store - Home
                   <table class="table table-sm">
                     <thead>
                       <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Item</th>
-                        <th scope="col">Team</th>
+                        <th scope="col">Order No</th>
+                        <th scope="col">Photo</th>
+                        <th scope="col">Item Name</th>
                         <th scope="col">Quantity</th>
                         <th scope="col">Unit Price</th>
                         <th scope="col">Sub-Total</th>
@@ -37,19 +38,19 @@ Soccer Jersey Store - Home
                     {% for i in range(shopLen) %}
                       <tr>
                         <th scope="row">{{ i + 1 }}</th>
-                        <td><img src="/static/img/{{ shoppingCart[i]["image"] }}" width="30px" alt="{{ shoppingCart[i]["team"] }}" /></td>
+                        <td><img src="/static/img/{{ shoppingCart[i]["image"] }}" width="100px" height="100px" alt="{{ shoppingCart[i]["team"] }}" /></td>
                         <td>{{ shoppingCart[i]["team"] }}</td>
                         <td><form action="/update/">
                             <input type="hidden" name="id" value="{{shoppingCart[i]["id"]}}" />
                             <input type="number" name="quantity" min="1" max="10" size="5" value="{{ shoppingCart[i]['SUM(qty)'] }}">
-                            <button type="submit" class="btn btn-warning checkout">Update</button>
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Update</button>
                           </form></td>
                         <td>{{ '${:,.2f}'.format(shoppingCart[i]["price"]) }}</td>
                         <td>{{ '${:,.2f}'.format(shoppingCart[i]['SUM(subTotal)']) }}</td>
                         <td>
                           <form action="/remove/" methods="GET">
                             <input type="hidden" name="id" value="{{ shoppingCart[i]["id"] }}" />
-                            <button type="submit" class="btn btn-secondary btn-sm" id="removeFromCart">Remove</button>
+                            <button type="submit" class="btn btn-outline-warning btn-sm" id="removeFromCart">Remove</button>
                           </form>
                         </td>
                       </tr>
@@ -67,14 +68,14 @@ Soccer Jersey Store - Home
                     </tfoot>
                     {% else %}
                       <tr>
-                        <td colSpan="7"><h3>Your cart is empty :\</h3></td>
+                        <td colSpan="7"><h3>Your cart is empty T^T</h3></td>
                       </tr>
                     </tbody>
                     <tfoot>
                       <tr>
-                        <td colSpan="7">Get some shirts now!<br />
-                          <div>
-                            <a href="/"><button type="button" class="btn btn-secondary" data-dismiss="modal">Continue Shopping</button></a>
+                        <td colSpan="7">Get some shirts now!<br>
+                          <div style="padding-top:10px">
+                            <a href="/"><button type="button" class="btn btn-outline-danger" data-dismiss="modal">Continue Shopping</button></a>
                           </div>
                         </td>
                       </tr>
