@@ -19,7 +19,8 @@
         <header>
             <nav class="navbar fixed-top navbar-dark bg-dark navbar-expand-sm box-shadow">
               <a href="/" class="navbar-brand d-flex align-items-center">
-                  <strong><i class="far fa-futbol"></i> Soccer Jersey Store</strong>
+                  <img src="/static/img/Logo.png">
+                  <strong><i class="far fa-futbol"></i> UNIQLO</strong>
               </a>
             </nav>
         </header><br />
@@ -36,14 +37,15 @@
                             <input type="text" name="fname" id="fname" placeholder="First Name" required> <span id="fname-msg" class="alert alert-danger"></span><br /><br />
                             <input type="text" name="lname" id="lname" placeholder="Last Name" required> <span id="lname-msg" class="alert alert-danger"></span><br /><br />
                             <input type="email" name="email" id="email" placeholder="Email" required> <span id="email-msg" class="alert alert-danger"></span><br /><br /><br />
-                            <button type="reset" class="btn btn-secondary">Clear</button>
-                            <button type="submit" id="submit" class="btn btn-primary">Register</button>
+                            <textarea type="address" name="address" id="address" placeholder="address" required></textarea> <span id="address-msg" class="alert alert-danger"></span> <br /><br /><br />
+                            <button type="reset" class="btn btn-outline-danger">Clear</button>
+                            <button type="submit" id="submit" class="btn btn-danger">Register</button>
                         </form>
                     </div>
                 </div>
             </div>
         </main>
-    <!-- Custom JS Scripts -->
+        <!-- Custom JS Scripts -->
         <script src="{{ url_for('static',filename='js/validate.js') }}"></script>
     </body>
 </html>

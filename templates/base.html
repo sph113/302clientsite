@@ -66,8 +66,8 @@
                       <tr>
                         <td colSpan="7">Total: {{ '${:,.2f}'.format(total) }}<br /><br />
                           <div class="modal-footer">
-                            <a href="/cart/"><button type="button" class="btn btn-primary checkout">Make Changes</button></a>
-                            <button type="button" class="btn btn-primary checkout" data-dismiss="modal">Continue Shopping</button>
+                            <a href="/cart/"><button type="button" class="btn btn-danger checkout">Make Changes</button></a>
+                            <button type="button" class="btn btn-danger checkout" data-dismiss="modal">Continue Shopping</button>
                             <a href="/checkout/"><button type="button" class="btn btn-success checkout">Quick Checkout</button></a>
                           </div>
                         </td>
@@ -82,7 +82,7 @@
                       <tr>
                         <td colSpan="7">Get some shirts now!<br />
                           <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Continue Shopping</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Continue Shopping</button>
                           </div>
                         </td>
                       </tr>
@@ -100,12 +100,13 @@
   <header>
     <nav class="navbar fixed-top navbar-dark bg-dark navbar-expand-sm box-shadow">
       <a href="/" class="navbar-brand d-flex align-items-center">
-          <strong><i class="far fa-futbol"></i> Soccer Jersey Store</strong>
+          <img src="/static/img/Logo.png">
+          <strong><i class="far fa-futbol"></i> UNIQLO</strong>
       </a>
       {% if session %}
       <ul class="navbar-nav mr-auto">
         <li class="nav-item"><a href="/logout/" class="nav-link">Logout</a></li>
-        <li class="nav-item"><a href="/history/" class="nav-link">You Bought</a></li>
+        <li class="nav-item"><a href="/history/" class="nav-link">Purchase List</a></li>
       {% else %}
       <ul class="navbar-nav mr-auto">
         <li class="nav-item"><a href="/new/" class="nav-link">Register</a></li>
@@ -137,7 +138,7 @@
             <div class="row">
                 <div class="col-md">
                     <hr />
-                    <p>&#169; <a href="/">Soccer Jersey Store</a></p>
+                    <p>&#169; <a href="/">UNIQLO</a></p>
                 </div>
             </div>
         </div>
