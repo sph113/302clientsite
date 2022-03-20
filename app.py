@@ -16,19 +16,19 @@ db = SQL ( "sqlite:///data.db" )
 
 @app.route("/")
 def index():
-    shirts = db.execute("SELECT * FROM shirts ORDER BY team ASC")
+    shirts = db.execute("SELECT * FROM shirts ORDER BY product ASC")
     shirtsLen = len(shirts)
     # Initialize variables
     shoppingCart = []
     shopLen = len(shoppingCart)
     totItems, total, display = 0, 0, 0
     if 'user' in session:
-        shoppingCart = db.execute("SELECT team, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY team")
+        shoppingCart = db.execute("SELECT product, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY product")
         shopLen = len(shoppingCart)
         for i in range(shopLen):
             total += shoppingCart[i]["SUM(subTotal)"]
             totItems += shoppingCart[i]["SUM(qty)"]
-        shirts = db.execute("SELECT * FROM shirts ORDER BY team ASC")
+        shirts = db.execute("SELECT * FROM shirts ORDER BY product ASC")
         shirtsLen = len(shirts)
         return render_template ("index.html", shoppingCart=shoppingCart, shirts=shirts, shopLen=shopLen, shirtsLen=shirtsLen, total=total, totItems=totItems, display=display, session=session )
     return render_template ( "index.html", shirts=shirts, shoppingCart=shoppingCart, shirtsLen=shirtsLen, shopLen=shopLen, total=total, totItems=totItems, display=display)
@@ -52,19 +52,19 @@ def buy():
             price = goods[0]["onSalePrice"]
         else:
             price = goods[0]["price"]
-        team = goods[0]["team"]
+        product = goods[0]["product"]
         image = goods[0]["image"]
         subTotal = qty * price
         # Insert selected shirt into shopping cart
-        db.execute("INSERT INTO cart (id, qty, team, image, price, subTotal) VALUES (:id, :qty, :team, :image, :price, :subTotal)", id=id, qty=qty, team=team, image=image, price=price, subTotal=subTotal)
-        shoppingCart = db.execute("SELECT team, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY team")
+        db.execute("INSERT INTO cart (id, qty, product, image, price, subTotal) VALUES (:id, :qty, :product, :image, :price, :subTotal)", id=id, qty=qty, product=product, image=image, price=price, subTotal=subTotal)
+        shoppingCart = db.execute("SELECT product, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY product")
         shopLen = len(shoppingCart)
         # Rebuild shopping cart
         for i in range(shopLen):
             total += shoppingCart[i]["SUM(subTotal)"]
             totItems += shoppingCart[i]["SUM(qty)"]
         # Select all shirts for home page view
-        shirts = db.execute("SELECT * FROM shirts ORDER BY team ASC")
+        shirts = db.execute("SELECT * FROM shirts ORDER BY product ASC")
         shirtsLen = len(shirts)
         # Go back to home page
         return render_template ("index.html", shoppingCart=shoppingCart, shirts=shirts, shopLen=shopLen, shirtsLen=shirtsLen, total=total, totItems=totItems, display=display, session=session )
@@ -89,12 +89,12 @@ def update():
             price = goods[0]["onSalePrice"]
         else:
             price = goods[0]["price"]
-        team = goods[0]["team"]
+        product = goods[0]["product"]
         image = goods[0]["image"]
         subTotal = qty * price
         # Insert selected shirt into shopping cart
-        db.execute("INSERT INTO cart (id, qty, team, image, price, subTotal) VALUES (:id, :qty, :team, :image, :price, :subTotal)", id=id, qty=qty, team=team, image=image, price=price, subTotal=subTotal)
-        shoppingCart = db.execute("SELECT team, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY team")
+        db.execute("INSERT INTO cart (id, qty, product, image, price, subTotal) VALUES (:id, :qty, :product, :image, :price, :subTotal)", id=id, qty=qty, product=product, image=image, price=price, subTotal=subTotal)
+        shoppingCart = db.execute("SELECT product, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY product")
         shopLen = len(shoppingCart)
         # Rebuild shopping cart
         for i in range(shopLen):
@@ -109,7 +109,7 @@ def checkout():
     order = db.execute("SELECT * from cart")
     # Update purchase history of current customer
     for item in order:
-        db.execute("INSERT INTO purchases (uid, id, team, image, quantity) VALUES(:uid, :id, :team, :image, :quantity)", uid=session["uid"], id=item["id"], team=item["team"], image=item["image"], quantity=item["qty"] )
+        db.execute("INSERT INTO purchases (uid, id, product, image, quantity) VALUES(:uid, :id, :product, :image, :quantity)", uid=session["uid"], id=item["id"], product=item["product"], image=item["image"], quantity=item["qty"] )
     # Clear shopping cart
     db.execute("DELETE from cart")
     shoppingCart = []
@@ -128,7 +128,7 @@ def remove():
     # Initialize shopping cart variables
     totItems, total, display = 0, 0, 0
     # Rebuild shopping cart
-    shoppingCart = db.execute("SELECT team, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY team")
+    shoppingCart = db.execute("SELECT product, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY product")
     shopLen = len(shoppingCart)
     for i in range(shopLen):
         total += shoppingCart[i]["SUM(subTotal)"]
@@ -226,7 +226,7 @@ def cart():
         # Clear shopping cart variables
         totItems, total, display = 0, 0, 0
         # Grab info currently in database
-        shoppingCart = db.execute("SELECT team, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY team")
+        shoppingCart = db.execute("SELECT product, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY product")
         # Get variable values
         shopLen = len(shoppingCart)
         for i in range(shopLen):
