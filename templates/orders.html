@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}
+UNIQLO - Purchase History
+{% endblock %}
+
+{% block body %}
+<!-- Main Store Body -->
+      <div class="row">
+        <div class="col-sm">
+            <br>
+            <h2>Your Shopping History</h2>
+            <table class="table table-sm">
+            <thead>
+              <tr>
+                <th scope="col">Order_ID</th>
+                <th scope="col">Preview</th>
+                <th scope="col">Address</th>
+                <th scope="col">Date</th>
+                <th scope="col">Detail</th>
+              </tr>
+            </thead>
+            <tbody>
+            <!-- For Each shirt -->
+            {% if myShirtsLen != 0 %}
+            {% for i in range(myShirtsLen) %}
+              <tr>
+                <th scope="row">{{ myShirts[i]["order_id"] }}</th>
+                <td><img src="/static/img/{{ myShirts[i]["image"] }}" width="100px" alt="{{ myShirts[i]["product"] }}" /></td>
+                <td>Flat {{ address[0]['flat'] }}, {{ address[0]['floor'] }}/F, {{ address[0]['estate'] }}, {{ address[0]['street'] }}, {{ address[0]['district'] }}</td>
+                <td>{{ myShirts[i]["date"] }}</td>
+                <td><a href="/orders/{{ myShirts[i]["order_id"] }}"><button type="button" class="btn btn-warning">Detail</button></a></td>
+              </tr>
+            </tbody>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colSpan="7"><h3>Still not our customers T^T</h3></td>
+            </tr>
+            </tbody>
+                <tfoot>
+                <tr>
+                    <td colSpan="7">Buy some shirts now!<br>
+                        <div style="padding-top:10px">
+                            <a href="/"><button type="button" class="btn btn-outline-danger" data-dismiss="modal">Continue Shopping</button></a>
+                        </div>
+                    </td>
+                </tr>
+                </tfoot>
+            {% endif %}
+            <tfoot>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+{% endblock %}
