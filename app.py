@@ -1,16 +1,18 @@
 from cs50 import SQL
 from flask_session import Session
 from flask import Flask, render_template, redirect, request, session, jsonify
+from flask_restful import reqparse, abort, Api, Resource
 from datetime import datetime
 
 # # Instantiate Flask object named app
 app = Flask(__name__)
 
+
 # # Configure sessions
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-
+api = Api(app)
 # Creates a connection to the database
 db = SQL ( "sqlite:///data.db" )
 
@@ -108,8 +110,10 @@ def update():
 def checkout():
     order = db.execute("SELECT * from cart")
     # Update purchase history of current customer
+    order_id = db.execute("SELECT max(order_id) FROM purchases")
+    new_order_id=sum(order_id[0].values(),1)
     for item in order:
-        db.execute("INSERT INTO purchases (uid, id, product, image, quantity) VALUES(:uid, :id, :product, :image, :quantity)", uid=session["uid"], id=item["id"], product=item["product"], image=item["image"], quantity=item["qty"] )
+        db.execute("INSERT INTO purchases (order_id, uid, id, product, image, quantity) VALUES(:order_id, :uid, :id, :product, :image, :quantity)", order_id=new_order_id, uid=session["uid"], id=item["id"], product=item["product"], image=item["image"], quantity=item["qty"] )
     # Clear shopping cart
     db.execute("DELETE from cart")
     shoppingCart = []
@@ -117,6 +121,32 @@ def checkout():
     totItems, total, display = 0, 0, 0
     # Redirect to home page
     return redirect('/')
+
+@app.route("/orders/")
+def orders():
+    shoppingCart = []
+    shopLen = len(shoppingCart)
+    totItems, total, display = 0, 0, 0
+    # Retrieve all shirts ever bought by current user
+    myShirts = db.execute("SELECT order_id, uid, product, image ,quantity,id,date FROM purchases WHERE uid=:uid Group by order_id ", uid=session["uid"])
+    myShirtsLen = len(myShirts)
+    address = db.execute("SELECT * FROM users WHERE id=:id", id=session["uid"])
+    # Render table with shopping history of current user
+    return render_template("orders.html", shoppingCart=shoppingCart,address=address,shopLen=shopLen, total=total, totItems=totItems,
+                           display=display, session=session, myShirts=myShirts, myShirtsLen=myShirtsLen)
+
+@app.route("/orders/<order_id>",methods = ['GET','POST'])
+def order(order_id):
+    # Initialize shopping cart variables
+    shoppingCart = []
+    shopLen = len(shoppingCart)
+    totItems, total, display = 0, 0, 0
+    # Retrieve all shirts ever bought by current user
+    myShirts = db.execute("SELECT * FROM purchases WHERE order_id=:order_id", order_id=order_id)
+    myShirtsLen = len(myShirts)
+    address = db.execute("SELECT * FROM users WHERE id=:id", id=session["uid"])
+    # Render table with shopping history of current user
+    return render_template("order.html", address=address,shoppingCart=shoppingCart, shopLen=shopLen, total=total, totItems=totItems, display=display, session=session, myShirts=myShirts, myShirtsLen=myShirtsLen)
 
 
 @app.route("/remove/", methods=["GET"])
@@ -179,6 +209,7 @@ def logged():
 def history():
     # Initialize shopping cart variables
     shoppingCart = []
+    shoppingCart = db.execute("SELECT product, image, SUM(qty), SUM(subTotal), price, id FROM cart GROUP BY product")
     shopLen = len(shoppingCart)
     totItems, total, display = 0, 0, 0
     # Retrieve all shirts ever bought by current user
