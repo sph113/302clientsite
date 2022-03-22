@@ -17,11 +17,27 @@ const FNAME_MSG = $( "#fname-msg" );
 const LNAME = $( "#lname" );
 const LNAME_MSG = $( "#lname-msg" );
 
+const PHONENO = $( "#phoneNo" );
+const PHONENO_MSG = $( "#phoneNo-msg" );
+
 const EMAIL = $( "#email" );
 const EMAIL_MSG = $( "#email-msg" );
 
-const ADDRESS = $( "#address" );
-const ADDRESS_MSG = $( "#address-msg" );
+const FLAT = $( "#flat" );
+const FLAT_MSG = $( "#flat-msg" );
+
+const FLOOR = $( "#floor" );
+const FLOOR_MSG = $( "#floor-msg" );
+
+const ESTATE = $( "#estate" );
+const ESTATE_MSG = $( "#estate-msg" );
+
+const STREET = $( "#street" );
+const STREET_MSG = $( "#street-msg" );
+
+const DISTRICT = $( "#district" );
+const DISTRICT_MSG = $( "#district-msg" );
+
 
 /**
  * Resets the error message fields and makes the submit
@@ -39,10 +55,20 @@ function reset_form ( )
     LNAME_MSG.hide();
     FNAME_MSG.html( "" );
     FNAME_MSG.hide();
+    PHONENO_MSG.html( "" );
+    PHONENO_MSG.hide();
     EMAIL_MSG.html( "" );
     EMAIL_MSG.hide();
-    ADDRESS_MSG.html( "" );
-    ADDRESS_MSG.hide();
+    FLAT_MSG.html( "" );
+    FLAT_MSG.hide();
+    FLOOR_MSG.html( "" );
+    FLOOR_MSG.hide();
+    ESTATE_MSG.html( "" );
+    ESTATE_MSG.hide();
+    STREET_MSG.html( "" );
+    STREET_MSG.hide();
+    DISTRICT_MSG.html( "" );
+    DISTRICT_MSG.hide();
     SUBMIT.show();
 }
 
@@ -106,6 +132,13 @@ function validate ( )
         valid = false;
     }
 
+    if ( !PHONENO.val() || PHONENO.val().length < 8 || PHONENO.val().length > 8)
+    {
+        PHONENO_MSG.html("You need to enter a valid phone number");
+        PHONENO_MSG.show();
+        valid = false;
+    }
+
     var x = EMAIL.val().trim();
     var atpos = x.indexOf("@");
     var dotpos = x.lastIndexOf(".");
@@ -115,10 +148,38 @@ function validate ( )
         valid = false;
     }
 
-    if ( !ADDRESS.val() )
+    if ( !FLAT.val() )
     {
-        ADDRESS_MSG.html("Address must not be empty");
-        ADDRESS_MSG.show();
+        FLAT_MSG.html("Flat must not be empty");
+        FLAT_MSG.show();
+        valid = false;
+    }
+
+    if ( !FLOOR.val() )
+    {
+        FLOOR_MSG.html("Floor must not be empty");
+        FLOOR_MSG.show();
+        valid = false;
+    }
+
+    if ( !ESTATE.val() )
+    {
+        ESTATE_MSG.html("Estate must not be empty");
+        ESTATE_MSG.show();
+        valid = false;
+    }
+
+    if ( !STREET.val() )
+    {
+        STREET_MSG.html("Street must not be empty");
+        STREET_MSG.show();
+        valid = false;
+    }
+
+    if ( !DISTRICT.val() )
+    {
+        DISTRICT_MSG.html("District must not be empty");
+        DISTRICT_MSG.show();
         valid = false;
     }
 
@@ -136,7 +197,13 @@ PASSWORD.change ( validate );
 CONFIRM.change ( validate );
 LNAME.change ( validate );
 FNAME.change ( validate );
+PHONENO.change ( validate );
 EMAIL.change ( validate );
-ADDRESS.change ( validate );
+FLAT.change ( validate );
+FLOOR.change ( validate );
+ESTATE.change ( validate );
+STREET.change ( validate );
+DISTRICT.change ( validate );
+
 
 
