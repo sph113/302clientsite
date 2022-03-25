@@ -291,10 +291,12 @@ def createjson(order_id):
     product = []
     x=0
     for i in shirt:
+        weight = db.execute("SELECT weight FROM shirt where id = :id", id=shirt[x]['id'])
         product_item = {
             'id': shirt[x]['id'],
             'name' : shirt[x]['product'],
-            "amount": shirt[x]['quantity']
+            "amount": shirt[x]['quantity'],
+            'weight': weight * shirt[x]['quantity']
         }
         product.append(product_item)
         x=x+1
