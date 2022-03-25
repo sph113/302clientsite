@@ -1,20 +1,25 @@
 from cs50 import SQL
 from flask_session import Session
-from flask import Flask, render_template, redirect, request, session, jsonify
+from flask import Flask, render_template, redirect, request, session, json
 from flask_restful import reqparse, abort, Api, Resource
 from datetime import datetime
 
 # # Instantiate Flask object named app
 app = Flask(__name__)
+api = Api(app)
 
+ORDERS = {
+    'order0': {
+},
+}
 
 # # Configure sessions
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-api = Api(app)
 # Creates a connection to the database
 db = SQL ( "sqlite:///data.db" )
+
 
 @app.route("/")
 def index():
@@ -278,7 +283,92 @@ def pageNotFound( e ):
          return render_template ( "404.html", session=session )
      return render_template ( "404.html" ), 404
 
+def createjson(order_id):
+    shirt = db.execute("SELECT * FROM purchases where order_id = :order_id",order_id=order_id)
+    user = db.execute("SELECT * FROM users where id = :id",id=shirt[0]['uid'])
+    company = "uniqlo"
+    Order_id = order_id
+    product = []
+    x=0
+    for i in shirt:
+        product_item = {
+            'id': shirt[x]['id'],
+            'name' : shirt[x]['product'],
+            "amount": shirt[x]['quantity']
+        }
+        product.append(product_item)
+        x=x+1
+    Flat = user[0]['flat']
+    Floor = user[0]['floor']
+    Estate = user[0]['estate']
+    Street = user[0]['street']
+    District = user[0]['district']
+    Customer_ID = shirt[0]['uid']
+    Customer_Name = user[0]['fname'] + " " + user[0]['lname']
+    Phone_number = user[0]['phoneNo']
+
+    data = {
+        'Company': company,
+        'Order_id': Order_id,
+        'Product': product,
+        'Flat': Flat,
+        'Floor': Floor,
+        'Estate': Estate,
+        'Street': Street,
+        'District': District,
+        'Customer_ID': Customer_ID,
+        'Customer_Name': Customer_Name,
+        'Phone_number': Phone_number
+    }
+
+    return data
+
+def abort_if_todo_doesnt_exist(order_id):
+    sorder_id='order'+str(order_id)
+    if sorder_id not in ORDERS:
+        abort(404, message="Order {} doesn't exist".format(order_id))
+
+class Orderjson(Resource):
+    def get(self, gorder_id):
+        global ORDERS
+        ORDERS = {
+            'order0': {
+            },
+        }
+        no = db.execute("SELECT * FROM purchases group by order_id")
+        for i in no:
+            order_id = int(max(ORDERS.keys()).lstrip('order')) + 1
+            sorder_id = 'order%i' % order_id
+            ORDERS[sorder_id] = createjson(order_id)
+        sgorder_id = 'order' + str(gorder_id)
+        abort_if_todo_doesnt_exist(gorder_id)
+        return ORDERS[sgorder_id]
+
+
+# TodoList
+# shows a list of all todos, and lets you POST to add new tasks
+class OrderListjson(Resource):
+    def get(self):
+        global ORDERS
+        ORDERS = {
+            'order0': {
+            },
+        }
+        no = db.execute("SELECT * FROM purchases group by order_id")
+        for i in no:
+            order_id = int(max(ORDERS.keys()).lstrip('order')) + 1
+            sorder_id = 'order%i' % order_id
+            ORDERS[sorder_id] = createjson(order_id)
+        return ORDERS,201
+
+
+
+##
+## Actually setup the Api resource routing here
+##
+api.add_resource(OrderListjson, '/ordersjson')
+api.add_resource(Orderjson, '/ordersjson/<gorder_id>')
 
 # Only needed if Flask run is not used to execute the server
 if __name__ == "__main__":
-    app.run(debug=True ,debuhost='0.0.0.0', port=8080)
+    app.run()
