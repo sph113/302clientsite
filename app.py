@@ -3,6 +3,7 @@ from flask_session import Session
 from flask import Flask, render_template, redirect, request, session, json
 from flask_restful import reqparse, abort, Api, Resource
 from datetime import datetime
+import requests, json
 
 # # Instantiate Flask object named app
 app = Flask(__name__)
@@ -20,6 +21,30 @@ Session(app)
 # Creates a connection to the database
 db = SQL ( "sqlite:///data.db" )
 
+def orderstoupdate():
+    orders = []
+    link = "http://xnobe.synology.me:1234/status"
+    url = requests.get(link)
+    text = url.text
+    data = json.loads(text)
+    iterdata = iter(data)
+    next(iterdata)
+    for i in iterdata:
+        number = i
+        realnumber = number.replace('status', '')
+        link2 = "http://xnobe.synology.me:1234/status/" + realnumber
+        url2 = requests.get(link2)
+        text2 = url2.text
+        data2 = json.loads(text2)
+        orders.append(data2)
+    return orders
+
+def updatestatus(orders):
+    for i in orders:
+        if not i['Status'] == None:
+            realnumber=i['Order_id'].replace('uniqlo', '')
+            db.execute("UPDATE orders SET status = :status WHERE order_id=:order_id",status=i['Status'],order_id=realnumber)
+            print(realnumber)
 
 @app.route("/")
 def index():
@@ -119,6 +144,7 @@ def checkout():
     new_order_id=sum(order_id[0].values(),1)
     for item in order:
         db.execute("INSERT INTO purchases (order_id, uid, id, product, image, quantity) VALUES(:order_id, :uid, :id, :product, :image, :quantity)", order_id=new_order_id, uid=session["uid"], id=item["id"], product=item["product"], image=item["image"], quantity=item["qty"] )
+    db.execute("INSERT INTO orders (order_id,status) VALUES (:order_id,NULL)",order_id=new_order_id)
     # Clear shopping cart
     db.execute("DELETE from cart")
     shoppingCart = []
@@ -129,6 +155,7 @@ def checkout():
 
 @app.route("/orders/")
 def orders():
+    updatestatus(orderstoupdate())
     shoppingCart = []
     shopLen = len(shoppingCart)
     totItems, total, display = 0, 0, 0
@@ -136,9 +163,13 @@ def orders():
     myShirts = db.execute("SELECT order_id, uid, product, image ,quantity,id,date FROM purchases WHERE uid=:uid Group by order_id ", uid=session["uid"])
     myShirtsLen = len(myShirts)
     address = db.execute("SELECT * FROM users WHERE id=:id", id=session["uid"])
+    status=[]
+    for i in myShirts:
+        status.append(db.execute("Select * from orders Where order_id=:order_id order by order_id",order_id=i['order_id'])[0])
+    print(status)
     # Render table with shopping history of current user
     return render_template("orders.html", shoppingCart=shoppingCart,address=address,shopLen=shopLen, total=total, totItems=totItems,
-                           display=display, session=session, myShirts=myShirts, myShirtsLen=myShirtsLen)
+                           display=display, session=session, myShirts=myShirts, myShirtsLen=myShirtsLen,status=status)
 
 @app.route("/orders/<order_id>",methods = ['GET','POST'])
 def order(order_id):
@@ -373,4 +404,4 @@ api.add_resource(Orderjson, '/ordersjson/<gorder_id>')
 
 # Only needed if Flask run is not used to execute the server
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0',port=8080)

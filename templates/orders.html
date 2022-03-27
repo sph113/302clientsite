@@ -17,6 +17,7 @@ UNIQLO - Purchase History
                 <th scope="col">Preview</th>
                 <th scope="col">Address</th>
                 <th scope="col">Date</th>
+                <th scope="col">status</th>
                 <th scope="col">Detail</th>
               </tr>
             </thead>
@@ -29,6 +30,7 @@ UNIQLO - Purchase History
                 <td><img src="/static/img/{{ myShirts[i]["image"] }}" width="100px" alt="{{ myShirts[i]["product"] }}" /></td>
                 <td>Flat {{ address[0]['flat'] }}, {{ address[0]['floor'] }}/F, {{ address[0]['estate'] }}, {{ address[0]['street'] }}, {{ address[0]['district'] }}</td>
                 <td>{{ myShirts[i]["date"] }}</td>
+                <td>{{ status[i]['status'] }}</td>
                 <td><a href="/orders/{{ myShirts[i]["order_id"] }}"><button type="button" class="btn btn-warning">Detail</button></a></td>
               </tr>
             </tbody>
