@@ -3,6 +3,7 @@ from flask_session import Session
 from flask import Flask, render_template, redirect, request, session, json
 from flask_restful import reqparse, abort, Api, Resource
 from datetime import datetime
+import requests, json
 
 # # Instantiate Flask object named app
 app = Flask(__name__)
@@ -20,6 +21,30 @@ Session(app)
 # Creates a connection to the database
 db = SQL ( "sqlite:///data.db" )
 
+def orderstoupdate():
+    orders = []
+    link = "http://xnobe.synology.me:1234/status"
+    url = requests.get(link)
+    text = url.text
+    data = json.loads(text)
+    iterdata = iter(data)
+    next(iterdata)
+    for i in iterdata:
+        number = i
+        realnumber = number.replace('status', '')
+        link2 = "http://xnobe.synology.me:1234/status/" + realnumber
+        url2 = requests.get(link2)
+        text2 = url2.text
+        data2 = json.loads(text2)
+        orders.append(data2)
+    return orders
+
+def updatestatus(orders):
+    for i in orders:
+        if not i['Status'] == None:
+            realnumber=i['Order_id'].replace('uniqlo', '')
+            db.execute("UPDATE orders SET status = :status WHERE order_id=:order_id",status=i['Status'],order_id=realnumber)
+            print(realnumber)
 
 @app.route("/")
 def index():
@@ -119,6 +144,7 @@ def checkout():
     new_order_id=sum(order_id[0].values(),1)
     for item in order:
         db.execute("INSERT INTO purchases (order_id, uid, id, product, image, quantity) VALUES(:order_id, :uid, :id, :product, :image, :quantity)", order_id=new_order_id, uid=session["uid"], id=item["id"], product=item["product"], image=item["image"], quantity=item["qty"] )
+    db.execute("INSERT INTO orders (order_id,status) VALUES (:order_id,NULL)",order_id=new_order_id)
     # Clear shopping cart
     db.execute("DELETE from cart")
     shoppingCart = []
@@ -129,6 +155,7 @@ def checkout():
 
 @app.route("/orders/")
 def orders():
+    updatestatus(orderstoupdate())
     shoppingCart = []
     shopLen = len(shoppingCart)
     totItems, total, display = 0, 0, 0
@@ -136,9 +163,13 @@ def orders():
     myShirts = db.execute("SELECT order_id, uid, product, image ,quantity,id,date FROM purchases WHERE uid=:uid Group by order_id ", uid=session["uid"])
     myShirtsLen = len(myShirts)
     address = db.execute("SELECT * FROM users WHERE id=:id", id=session["uid"])
+    status=[]
+    for i in myShirts:
+        status.append(db.execute("Select * from orders Where order_id=:order_id order by order_id",order_id=i['order_id'])[0])
+    print(status)
     # Render table with shopping history of current user
     return render_template("orders.html", shoppingCart=shoppingCart,address=address,shopLen=shopLen, total=total, totItems=totItems,
-                           display=display, session=session, myShirts=myShirts, myShirtsLen=myShirtsLen)
+                           display=display, session=session, myShirts=myShirts, myShirtsLen=myShirtsLen,status=status)
 
 @app.route("/orders/<order_id>",methods = ['GET','POST'])
 def order(order_id):
@@ -242,16 +273,21 @@ def registration():
     confirm = request.form["confirm"]
     fname = request.form["fname"]
     lname = request.form["lname"]
+    phoneNo = request.form["phoneNo"]
     email = request.form["email"]
-    address = request.form["address"]
+    flat = request.form["flat"]
+    floor = request.form["floor"]
+    estate = request.form["estate"]
+    street = request.form["street"]
+    district = request.form["district"]
     # See if username already in the database
     rows = db.execute( "SELECT * FROM users WHERE username = :username ", username = username )
     # If username already exists, alert user
     if len( rows ) > 0:
         return render_template ( "new.html", msg="Username already exists!" )
     # If new user, upload his/her info into the users database
-    new = db.execute ( "INSERT INTO users (username, password, fname, lname, email, address) VALUES (:username, :password, :fname, :lname, :email, :address)",
-                    username=username, password=password, fname=fname, lname=lname, email=email , address=address)
+    new = db.execute ( "INSERT INTO users (username, password, fname, lname, phoneNo, email, flat, floor, estate, street, district) VALUES (:username, :password, :fname, :lname, :phoneNo, :email, :flat, :floor, :estate, :street, :district)",
+                    username=username, password=password, fname=fname, lname=lname, phoneNo=phoneNo, email=email, flat=flat, floor=floor, estate=estate, street=street, district=district )
     # Render login template
     return render_template ( "login.html" )
 
@@ -286,12 +322,12 @@ def createjson(order_id):
     product = []
     x=0
     for i in shirt:
-        weight = db.execute("SELECT weight FROM shirts where id = :id", id=shirt[x]['id'])
+        weight = db.execute("SELECT weight FROM shirt where id = :id", id=shirt[x]['id'])
         product_item = {
             'id': shirt[x]['id'],
             'name' : shirt[x]['product'],
             "amount": shirt[x]['quantity'],
-            'weight':weight[0]['weight'] * shirt[x]['quantity']
+            'weight': weight * shirt[x]['quantity']
         }
         product.append(product_item)
         x=x+1
@@ -363,9 +399,9 @@ class OrderListjson(Resource):
 ##
 ## Actually setup the Api resource routing here
 ##
-api.add_resource(OrderListjson, '/ordersjson/')
+api.add_resource(OrderListjson, '/ordersjson')
 api.add_resource(Orderjson, '/ordersjson/<gorder_id>')
 
 # Only needed if Flask run is not used to execute the server
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0',port=8080)
