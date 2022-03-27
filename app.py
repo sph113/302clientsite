@@ -322,7 +322,7 @@ def createjson(order_id):
     product = []
     x=0
     for i in shirt:
-        weight = db.execute("SELECT weight FROM shirt where id = :id", id=shirt[x]['id'])
+        weight = db.execute("SELECT weight FROM shirts where id = :id", id=shirt[x]['id'])
         product_item = {
             'id': shirt[x]['id'],
             'name' : shirt[x]['product'],
@@ -399,7 +399,7 @@ class OrderListjson(Resource):
 ##
 ## Actually setup the Api resource routing here
 ##
-api.add_resource(OrderListjson, '/ordersjson')
+api.add_resource(OrderListjson, '/ordersjson/')
 api.add_resource(Orderjson, '/ordersjson/<gorder_id>')
 
 # Only needed if Flask run is not used to execute the server
