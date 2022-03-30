@@ -369,9 +369,10 @@ class Orderjson(Resource):
             },
         }
         no = db.execute("SELECT * FROM purchases group by order_id")
+        order_id = 0
         for i in no:
-            order_id = int(max(ORDERS.keys()).lstrip('order')) + 1
-            sorder_id = 'order%i' % order_id
+            order_id = order_id + 1
+            sorder_id = 'order' + str(order_id)
             ORDERS[sorder_id] = createjson(order_id)
         sgorder_id = 'order' + str(gorder_id)
         abort_if_todo_doesnt_exist(gorder_id)
@@ -388,9 +389,10 @@ class OrderListjson(Resource):
             },
         }
         no = db.execute("SELECT * FROM purchases group by order_id")
+        order_id=0
         for i in no:
-            order_id = int(max(ORDERS.keys()).lstrip('order')) + 1
-            sorder_id = 'order%i' % order_id
+            order_id = order_id + 1
+            sorder_id = 'order' + str(order_id)
             ORDERS[sorder_id] = createjson(order_id)
         return ORDERS,201
 
