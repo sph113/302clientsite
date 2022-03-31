@@ -327,7 +327,7 @@ def createjson(order_id):
             'id': shirt[x]['id'],
             'name' : shirt[x]['product'],
             "amount": shirt[x]['quantity'],
-            'weight': weight * shirt[x]['quantity']
+            'weight': weight[0]['weight'] * shirt[x]['quantity']
         }
         product.append(product_item)
         x=x+1
